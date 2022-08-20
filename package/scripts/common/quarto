@@ -16,10 +16,10 @@ fi
 SCRIPT_BASENAME=$(basename $SCRIPT_PATH)
 if [ "${SCRIPT_BASENAME}" == "bin" ]; then
   # we can be running dev mode with a symlink to the package/dist/bin folder. In this case, our relative path is two levels up.
-  QUARTO_ROOT="`cd "$SCRIPT_PATH/../../../src" > /dev/null 2>&1 && pwd`"
+  QUARTO_ROOT="`cd "$SCRIPT_PATH/../../.." > /dev/null 2>&1 && pwd`"
 elif [ "${SCRIPT_BASENAME}" == "common" ]; then
   # we can run this script directly in the source tree. In this case, our relative path is three levels up.
-  QUARTO_ROOT="`cd "$SCRIPT_PATH/../../../src" > /dev/null 2>&1 && pwd`"
+  QUARTO_ROOT="`cd "$SCRIPT_PATH/../../.." > /dev/null 2>&1 && pwd`"
 else
   echo "ERROR: Cannot determine the Quarto source path. This script must be run from the bin or common folder."
   exit 1
@@ -31,10 +31,6 @@ if [ -f "$DEV_PATH" ]; then
     echo "99.9.9"
     exit 0
   fi
-
-  echo "Running in Dev Mode because $DEV_PATH exists."
-  echo "    Calling script was ${BASH_SOURCE[0]}"
-  echo "    (symlink resolved to $SCRIPT_PATH/quarto)"
 
   # Caller can point deno at another entry point (e.g. the typescript file)
   if [ -z ${QUARTO_ACTION+x} ]; then
@@ -60,7 +56,7 @@ if [ -f "$DEV_PATH" ]; then
   if [ -f "$DENO_VERSION_FILE" ]; then
     # echo is to trim whitespace to avoid version comparison issues
     DENO_INSTALLED_VERSION=$(echo `cat "$DENO_VERSION_FILE"`)
-    if [ "${DENO_SOURCE_VERSION}" != "${DENO_INSTALLED_VERSIONv}" ]; then
+    if [ "${DENO_SOURCE_VERSION}" != "${DENO_INSTALLED_VERSION}" ]; then
       # configure will call back into this script so we need to update the
       # version so that the check will pass next time through
       echo "$DENO_SOURCE_VERSION" > "$DENO_VERSION_FILE"
@@ -69,8 +65,6 @@ if [ -f "$DEV_PATH" ]; then
       printf "\\033[0;31mQuarto required reconfiguration to install Deno. Had ${DENO_INSTALLED_VERSION}, needed ${DENO_SOURCE_VERSION}. Please try command again.\\033[0m\n\n"
       exit 1
     fi
-  else
-    echo "$DENO_SOURCE_VERSION" > "$DENO_VERSION_FILE"
   fi
 
 else

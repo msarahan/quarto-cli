@@ -13,7 +13,12 @@ runs:
         shell: bash
         run: |
           ./configure.sh
-          package/src/quarto-bld prepare-dist
+
+      - name: Basic dev mode sanity check
+        shell: bash
+        run: |
+          [ "$(quarto --version)" == "99.9.9" ] || exit 1
+          [ "$(quarto --paths | grep package/dist/share) == "" ] || exit 1
 
       - name: Quarto Check
         shell: bash
