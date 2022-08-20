@@ -30,7 +30,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           .\configure.cmd
-          call package\dist\bin\quarto.cmd check
+          package/dist/bin/quarto.cmd check
           pwd
           cd package/src
           .\quarto-bld.cmd compile-quarto-latexmk --target x86_64-pc-windows-msvc --name tinitex
