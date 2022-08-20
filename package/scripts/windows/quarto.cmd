@@ -3,11 +3,11 @@
 SETLOCAL ENABLEDELAYEDEXPANSION
 
 SET "SCRIPT_PATH=%~dp0"
-SET DEV_PATH=..\..\..\src
+SET DEV_PATH=..\..\..
 
 :: Set SRC_PATH in a way that normalizes the ../.. stuff away
-for %%i in ("%SCRIPT_PATH%\%DEV_PATH%") do SET "SRC_PATH=%%~fi"
-SET "QUARTO_TS_PATH=%SRC_PATH%\quarto.ts"
+for %%i in ("%~dp0\%DEV_PATH%") do SET "QUARTO_ROOT=%%~fi"
+SET "QUARTO_TS_PATH=!QUARTO_ROOT!\src\quarto.ts"
 
 IF EXIST "%QUARTO_TS_PATH%" (
 
@@ -21,23 +21,22 @@ IF EXIST "%QUARTO_TS_PATH%" (
 		GOTO end
 	)
 
+  call !QUARTO_ROOT!\win_configuration.bat
+  REM overrride share path to point to our dev folder instead of dist
+  set QUARTO_SHARE_PATH=%QUARTO_ROOT%\src\resources
+
 	IF "%QUARTO_ACTION%"=="" (
 		SET QUARTO_ACTION=run
 	)
-	SET QUARTO_IMPORT_ARGMAP=--importmap="%SRC_PATH%\dev_import_map.json"
+	SET QUARTO_IMPORT_ARGMAP=--importmap="!QUARTO_SRC_PATH!\dev_import_map.json"
 
 	IF "%QUARTO_TARGET%"=="" (
 		SET QUARTO_TARGET="%QUARTO_TS_PATH%"
 	)
 
-	SET "QUARTO_BIN_PATH=!SCRIPT_PATH!"
-	SET "QUARTO_SHARE_PATH=!SRC_PATH!resources\"
 	SET QUARTO_DEBUG=true
 	:: Normalize path to remove ../.. stuff
-	for %%i in ("!SCRIPT_PATH!\..\..\..") do SET "QUARTO_DEV_PATH=%%~fi"
 	for %%i in ("!SCRIPT_PATH!..\config\deno-version") do SET "DENO_VERSION_FILE=%%~fi"
-	SET "QUARTO_CONFIG_FILE=!QUARTO_DEV_PATH!\configuration"
-  FOR /F "usebackq tokens=*" %%A IN ("!QUARTO_CONFIG_FILE!") DO CALL :convertExportToSet %%A
 
   if exist "!DENO_VERSION_FILE!" (
 
@@ -45,7 +44,7 @@ IF EXIST "%QUARTO_TS_PATH%" (
 	  if NOT "!DENO!"=="!DENO_INSTALLED_VERSION!" (
 			echo !DENO!>"!DENO_VERSION_FILE!"
 
-			cd !QUARTO_DEV_PATH!
+			cd !QUARTO_ROOT!
 			call configure.cmd
       echo
 			echo Quarto required reconfiguration to install Deno !DENO!. Please try command again.
@@ -70,7 +69,7 @@ IF EXIST "%QUARTO_TS_PATH%" (
 	SET QUARTO_ACTION=run
 	SET "QUARTO_TARGET=%SCRIPT_PATH%\quarto.js"
 	SET "QUARTO_BIN_PATH=%SCRIPT_PATH%"
-	SET "QUARTO_IMPORT_ARGMAP=--importmap=""%SCRIPT_PATH%""\vendor\import_map.json"
+	SET "QUARTO_IMPORT_ARGMAP=--importmap=""!QUARTO_SRC_PATH!""\vendor\import_map.json"
 )
 
 IF "%1"=="--paths" (
