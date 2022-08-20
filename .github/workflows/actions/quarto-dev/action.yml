@@ -12,7 +12,7 @@ runs:
       - name: Configure Quarto
         shell: bash
         run: |
-          ./configure.sh
+          FORCE_DENO_VENDOR=1 ./configure.sh
 
       - name: Basic dev mode sanity check
         shell: bash
