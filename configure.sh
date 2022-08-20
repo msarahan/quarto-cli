@@ -75,7 +75,7 @@ pushd $QUARTO_PACKAGE_PATH/src/
 ./quarto-bld configure --log-level info
 
 
-if [[ -v FORCE_DENO_VENDOR || "$CI" != "true" && ( ( "$QUARTO_SRC_PATH/import_map.json" -nt "$QUARTO_SRC_PATH/dev_import_map.json" ) || ( "$QUARTO_SRC_PATH/vendor/import_map.json" -nt "$QUARTO_SRC_PATH/dev_import_map.json" ) ) ]]; then
+if [[ "$FORCE_DENO_VENDOR" != "" || "$CI" != "true" && ( ( "$QUARTO_SRC_PATH/import_map.json" -nt "$QUARTO_SRC_PATH/dev_import_map.json" ) || ( "$QUARTO_SRC_PATH/vendor/import_map.json" -nt "$QUARTO_SRC_PATH/dev_import_map.json" ) ) ]]; then
 	echo [Revendoring quarto dependencies]
 
 	pushd ${QUARTO_SRC_PATH}
